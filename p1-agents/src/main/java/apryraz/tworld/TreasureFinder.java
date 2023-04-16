@@ -221,7 +221,7 @@ public class TreasureFinder  {
             return moveTo(nextPosition.x, nextPosition.y);
         } else {
             System.out.println("NO MORE steps to perform at agent!");
-            return (new AMessage("NOMESSAGE","",""));
+            return (new AMessage("NOMESSAGE","","", ""));
         }
     }
 
@@ -242,7 +242,7 @@ public class TreasureFinder  {
         // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
-        msg = new AMessage("moveto", (new Integer(x)).toString(), (new Integer(y)).toString(), "" );
+        msg = new AMessage("moveto", Integer.valueOf(x).toString(), Integer.valueOf(y).toString(), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => moving to : (" + x + "," + y + ")");
 
@@ -275,8 +275,8 @@ public class TreasureFinder  {
     {
         AMessage msg, ans;
 
-        msg = new AMessage( "detectsat", (new Integer(agentX)).toString(),
-                                       (new Integer(agentY)).toString(), "" );
+        msg = new AMessage( "detectsat", Integer.valueOf(agentX).toString(),
+                                       Integer.valueOf(agentY).toString(), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => detecting at : (" + agentX + "," + agentY + ")");
         return ans;
