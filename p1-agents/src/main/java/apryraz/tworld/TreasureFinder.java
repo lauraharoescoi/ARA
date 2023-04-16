@@ -277,6 +277,7 @@ public class TreasureFinder  {
 
         msg = new AMessage( "detectsat", Integer.valueOf(agentX).toString(),
                                        Integer.valueOf(agentY).toString(), "" );
+
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => detecting at : (" + agentX + "," + agentY + ")");
         return ans;
