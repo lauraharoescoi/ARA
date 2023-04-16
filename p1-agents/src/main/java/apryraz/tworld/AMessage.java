@@ -12,7 +12,8 @@ public class AMessage {
   *  field1:  first parameter of message
   *  field2:  second parameter of message
   */
- String[] msg ;
+    Action msgtype;
+    String[] msg ;
 
 /**
 *  Class constructor
@@ -22,20 +23,20 @@ public class AMessage {
 *  @param par2:  second parameter of message
    @param par3:  third parameter of message
 **/
- public  AMessage( String msgtype, String par1, String par2, String par3 ) {
-   msg = new String[4];
+ public  AMessage( Action msgtype, String par1, String par2, String par3 ) {
+   msg = new String[3];
+   this.msgtype = msgtype;
 
-   msg[0] = msgtype;
-   msg[1] = par1;
-   msg[2] = par2;
-   msg[3] = par3;
+   msg[0] = par1;
+   msg[1] = par2;
+   msg[2] = par3;
  }
 
  /**
  *  Show message on screen
  **/
  public void showMessage() {
-     System.out.println( "MESSAGE: "+msg[0]+ " "+ msg[1] + " "+ msg[2]+ " "+msg[3] );
+     System.out.println( "MESSAGE: "+this.msgtype.name()+ " "+ msg[0] + " "+ msg[1]+ " "+msg[2] );
  }
 
  /**
@@ -47,6 +48,10 @@ public class AMessage {
  **/
  public String getComp(int c) {
    return msg[c];
+ }
+
+ public Action getType() {
+     return this.msgtype;
  }
 
 }

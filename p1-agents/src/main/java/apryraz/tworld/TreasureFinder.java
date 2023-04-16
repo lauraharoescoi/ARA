@@ -221,7 +221,7 @@ public class TreasureFinder  {
             return moveTo(nextPosition.x, nextPosition.y);
         } else {
             System.out.println("NO MORE steps to perform at agent!");
-            return (new AMessage("NOMESSAGE","","", ""));
+            return (new AMessage(Action.NOMSG, "","", ""));
         }
     }
 
@@ -242,7 +242,7 @@ public class TreasureFinder  {
         // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
-        msg = new AMessage("moveto", Integer.valueOf(x).toString(), Integer.valueOf(y).toString(), "" );
+        msg = new AMessage(Action.MOVETO, Integer.valueOf(x).toString(), Integer.valueOf(y).toString(), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => moving to : (" + x + "," + y + ")");
 
@@ -257,9 +257,9 @@ public class TreasureFinder  {
    **/
     public void processMoveAnswer ( AMessage moveans )
     {
-        if ( moveans.getComp(0).equals("movedto") ) {
-          agentX = Integer.parseInt( moveans.getComp(1) );
-          agentY = Integer.parseInt( moveans.getComp(2) );
+        if ( moveans.getType().equals(Action.MOVEDTO) ) {
+          agentX = Integer.parseInt( moveans.getComp(0) );
+          agentY = Integer.parseInt( moveans.getComp(1) );
           
           System.out.println("FINDER => moved to : (" + agentX + "," + agentY + ")"   );
         }
@@ -275,7 +275,7 @@ public class TreasureFinder  {
     {
         AMessage msg, ans;
 
-        msg = new AMessage( "detectsat", Integer.valueOf(agentX).toString(),
+        msg = new AMessage( Action.DETECTSAT, Integer.valueOf(agentX).toString(),
                                        Integer.valueOf(agentY).toString(), "" );
 
         ans = EnvAgent.acceptMessage( msg );
@@ -294,10 +294,10 @@ public class TreasureFinder  {
             IOException, ContradictionException,  TimeoutException
     {
 
-      if ( ans.getComp(0).equals("detected") ) {
-        int x = Integer.parseInt(ans.getComp(1));
-        int y = Integer.parseInt(ans.getComp(2));
-        int sensorValue = Integer.parseInt(ans.getComp(3));
+      if ( ans.getType().equals(Action.DETECTED) ) {
+        int x = Integer.parseInt(ans.getComp(0));
+        int y = Integer.parseInt(ans.getComp(1));
+        int sensorValue = Integer.parseInt(ans.getComp(2));
 
          // Call your function/functions to add the evidence clauses
          // to Gamma to then be able to infer new NOT possible positions

@@ -44,19 +44,19 @@ public class TreasureWorldEnv {
 * @return  a msg with the answer to return to the agent
 **/
    public AMessage acceptMessage( AMessage msg ) {
-       AMessage ans = new AMessage("voidmsg", "", "", "" );
+       AMessage ans = new AMessage(Action.VOID, "", "", "" );
 
        msg.showMessage();
-       if ( msg.getComp(0).equals("moveto") ) {
-           int nx = Integer.parseInt( msg.getComp(1) );
-           int ny = Integer.parseInt( msg.getComp(2) );
+       if ( msg.getType().equals(Action.MOVETO) ) {
+           int nx = Integer.parseInt( msg.getComp(0) );
+           int ny = Integer.parseInt( msg.getComp(1) );
            
            if (withinLimits(nx,ny))
            {                          
-             ans = new AMessage("movedto",msg.getComp(1),msg.getComp(2),  ""  );
+             ans = new AMessage(Action.MOVEDTO,msg.getComp(0),msg.getComp(1),  ""  );
            }
            else
-             ans = new AMessage("notmovedto",msg.getComp(1),msg.getComp(2), "" );
+             ans = new AMessage(Action.NOTMOVETO,msg.getComp(0),msg.getComp(1), "" );
 
        } else {
              // YOU MUST ANSWER ALSO TO THE OTHER MESSAGE TYPE:
