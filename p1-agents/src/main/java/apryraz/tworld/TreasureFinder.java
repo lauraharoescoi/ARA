@@ -43,7 +43,7 @@ public class TreasureFinder  {
 **/
     int idNextStep, numMovements;
 /**
-*  Array of clauses that represent conclusiones obtained in the last
+*  Array of clauses that represent conclusions obtained in the last
 * call to the inference function, but rewritten using the "past" variables
 **/
     ArrayList<VecInt> futureToPast = null;
@@ -71,7 +71,7 @@ public class TreasureFinder  {
     int WorldDim, WorldLinealDim;
 
 /**
-*    This set of variables CAN be use to mark the beginning of different subsets
+*    This set of variables CAN be used to mark the beginning of different subsets
 *    of variables in your propositional formula (but you may have more sets of
 *    variables in your solution or use totally different variables to identify
      your different subsets of variables).
@@ -318,8 +318,10 @@ public class TreasureFinder  {
     public void addLastFutureClausesToPastClauses() throws  IOException,
             ContradictionException, TimeoutException
     {
-
-
+        for (VecInt clause : futureToPast) {
+            solver.addClause(clause);
+        }
+        futureToPast.clear();
     }
 
     /**
