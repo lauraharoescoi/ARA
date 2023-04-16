@@ -55,7 +55,7 @@ public class TreasureFinder  {
 /**
 *   The object that represents the interface to the Treasure World
 **/
-   TreasureWorldEnv EnvAgent;
+    TreasureWorldEnv EnvAgent;
 /**
 *   SAT solver object that stores the logical boolean formula with the rules
 *   and current knowledge about not possible locations for Treasure

@@ -31,7 +31,7 @@ public class TreasureWorldEnv {
     WorldDim = dim;
   }
 
- 
+
 
 
 /**
@@ -46,7 +46,7 @@ public class TreasureWorldEnv {
    public AMessage acceptMessage( AMessage msg ) {
        AMessage ans = new AMessage("voidmsg", "", "", "" );
 
-         msg.showMessage();
+       msg.showMessage();
        if ( msg.getComp(0).equals("moveto") ) {
            int nx = Integer.parseInt( msg.getComp(1) );
            int ny = Integer.parseInt( msg.getComp(2) );
