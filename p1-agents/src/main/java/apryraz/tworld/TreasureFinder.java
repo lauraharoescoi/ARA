@@ -339,7 +339,27 @@ public class TreasureFinder  {
     public void  performInferenceQuestions() throws  IOException,
             ContradictionException, TimeoutException
     {
-       // EXAMPLE code to check this for position (2,3):
+       for (int i = 0; i < TreasureFutureOffset; i++) {
+           for (int j = 0; j < TreasureFutureOffset; j++) {
+               int linealIndex = coordToLineal(i, j, TreasureFutureOffset);
+               int linealIndexPast = coordToLineal(i, j, TreasurePastOffset);
+
+               VecInt variablePositive = new VecInt();
+               variablePositive.insertFirst(linealIndex);
+
+               if (!(solver.isSatisfiable(variablePositive))) {
+                   VecInt concPast = new VecInt();
+                   concPast.insertFirst(-(linealIndexPast));
+
+                   // No afegeix les conclusions que ja s'han afegit anteriorment a futureToPast
+                   if(!solver.equals(concPast)){
+                       futureToPast.add(concPast);
+                       tfstate.set(i, j, "X");
+                   }
+               }
+           }
+       }
+       /* // EXAMPLE code to check this for position (2,3):
        // Get variable number for position 2,3 in past variables
         int linealIndex = coordToLineal(2, 3, TreasureFutureOffset);
        // Get the same variable, but in the past subset
@@ -357,7 +377,7 @@ public class TreasureFinder  {
 
               futureToPast.add(concPast);
               tfstate.set( 2 , 3 , "X" );
-        }
+        }*/
 
     }
 
