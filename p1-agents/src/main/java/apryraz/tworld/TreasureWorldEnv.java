@@ -45,23 +45,26 @@ public class TreasureWorldEnv {
 **/
    public AMessage acceptMessage( AMessage msg ) {
        AMessage ans = new AMessage(Action.VOID, "", "", "" );
-
        msg.showMessage();
-       if ( msg.getType().equals(Action.MOVETO) ) {
-           int nx = Integer.parseInt( msg.getComp(0) );
-           int ny = Integer.parseInt( msg.getComp(1) );
-           
-           if (withinLimits(nx,ny))
-           {                          
-             ans = new AMessage(Action.MOVEDTO,msg.getComp(0),msg.getComp(1),  ""  );
-           }
-           else
-             ans = new AMessage(Action.NOTMOVETO,msg.getComp(0),msg.getComp(1), "" );
 
-       } else {
-             // YOU MUST ANSWER ALSO TO THE OTHER MESSAGE TYPE:
-             //   ( "detectsat", "x" , "y", "" )             
-         }
+       int x = Integer.parseInt( msg.getComp(0) );
+       int y = Integer.parseInt( msg.getComp(1) );
+
+       if ( msg.getType().equals(Action.MOVETO) ) {
+           if (withinLimits(x,y)) {
+               ans = new AMessage(Action.MOVEDTO,msg.getComp(0),msg.getComp(1),  ""  );
+           } else {
+               ans = new AMessage(Action.NOTMOVETO, msg.getComp(0), msg.getComp(1), "");
+           }
+       } else if ( msg.getType().equals(Action.DETECTSAT) ) {
+           if (x == TreasureX && y == TreasureY || x + 1 == TreasureX && y == TreasureY || x == TreasureX && y + 1 == TreasureY || x - 1 == TreasureX && y == TreasureY || x == TreasureX && y - 1 == TreasureY) {
+               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "1");
+           } else if (x + 1 == TreasureX && y + 1 == TreasureY || x + 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y + 1 == TreasureY) {
+               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "2");
+           } else {
+               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "3");
+           }
+       }
        return ans;
 
    }
