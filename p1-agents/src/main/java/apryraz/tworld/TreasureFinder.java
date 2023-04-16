@@ -283,7 +283,6 @@ public class TreasureFinder  {
         return ans;
     }
 
-
     /**
     *   Process the answer obtained for the query "Detects at (x,y)?"
     *   by adding the appropriate evidence clause to the formula
