@@ -31,16 +31,15 @@ public class TFState {
 
   public boolean equals(Object obj){
        TFState tfstate2 = (TFState) obj;
-       boolean status = true;
 
        for (int i = 0; i < wDim; i++) {
            for (int j = 0; j < wDim; j++) {
                if (! matrix[i][j].equals( tfstate2.matrix[i][j]) )
-                 status = false;
+                 return false;
            }
        }
 
-       return status;
+       return true;
    }
 
   public void printState()
