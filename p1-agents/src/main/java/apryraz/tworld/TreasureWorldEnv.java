@@ -57,16 +57,20 @@ public class TreasureWorldEnv {
                ans = new AMessage(Action.NOTMOVETO, msg.getComp(0), msg.getComp(1), "");
            }
        } else if ( msg.getType().equals(Action.DETECTSAT) ) {
-           if (x == TreasureX && y == TreasureY || x + 1 == TreasureX && y == TreasureY || x == TreasureX && y + 1 == TreasureY || x - 1 == TreasureX && y == TreasureY || x == TreasureX && y - 1 == TreasureY) {
-               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "1");
-           } else if (x + 1 == TreasureX && y + 1 == TreasureY || x + 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y + 1 == TreasureY) {
-               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "2");
-           } else {
-               ans = new AMessage(Action.DETECTED, msg.getComp(0),msg.getComp(1), "3");
-           }
+           ans = new AMessage(Action.DETECTED, msg.getComp(0), msg.getComp(1), Integer.toString(detectSignal(x,y)));
        }
        return ans;
 
+   }
+
+   public int detectSignal(int x, int y) {
+       if (x == TreasureX && y == TreasureY || x + 1 == TreasureX && y == TreasureY || x == TreasureX && y + 1 == TreasureY || x - 1 == TreasureX && y == TreasureY || x == TreasureX && y - 1 == TreasureY) {
+           return 1;
+       } else if (x + 1 == TreasureX && y + 1 == TreasureY || x + 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y - 1 == TreasureY || x - 1 == TreasureX && y + 1 == TreasureY) {
+           return 2;
+       } else {
+           return 3;
+       }
    }
 
  

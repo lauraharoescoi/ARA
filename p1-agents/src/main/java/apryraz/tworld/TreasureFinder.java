@@ -71,6 +71,12 @@ public class TreasureFinder  {
     int WorldDim, WorldLinealDim;
 
 /**
+ * This variable is used to store the clauses that are used to
+ * represent the past state of the world.
+ */
+    ArrayList<VecInt> pastClauses = new ArrayList<VecInt>();
+
+/**
 *    This set of variables CAN be used to mark the beginning of different subsets
 *    of variables in your propositional formula (but you may have more sets of
 *    variables in your solution or use totally different variables to identify
@@ -242,7 +248,7 @@ public class TreasureFinder  {
         // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
-        msg = new AMessage(Action.MOVETO, Integer.valueOf(x).toString(), Integer.valueOf(y).toString(), "" );
+        msg = new AMessage(Action.MOVETO, Integer.toString(x), Integer.toString(y), "" );
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => moving to : (" + x + "," + y + ")");
 
@@ -275,8 +281,7 @@ public class TreasureFinder  {
     {
         AMessage msg, ans;
 
-        msg = new AMessage( Action.DETECTSAT, Integer.valueOf(agentX).toString(),
-                                       Integer.valueOf(agentY).toString(), "" );
+        msg = new AMessage( Action.DETECTSAT, Integer.toString(agentX), Integer.toString(agentY), "" );
 
         ans = EnvAgent.acceptMessage( msg );
         System.out.println("FINDER => detecting at : (" + agentX + "," + agentY + ")");
@@ -320,6 +325,7 @@ public class TreasureFinder  {
     {
         for (VecInt clause : futureToPast) {
             solver.addClause(clause);
+            pastClauses.add(clause);
         }
         futureToPast.clear();
     }
@@ -352,33 +358,13 @@ public class TreasureFinder  {
                    concPast.insertFirst(-(linealIndexPast));
 
                    // No afegeix les conclusions que ja s'han afegit anteriorment a futureToPast
-                   if(!solver.equals(concPast)){
+                   if(!pastClauses.contains(concPast)) {
                        futureToPast.add(concPast);
                        tfstate.set(i, j, "X");
                    }
                }
            }
        }
-       /* // EXAMPLE code to check this for position (2,3):
-       // Get variable number for position 2,3 in past variables
-        int linealIndex = coordToLineal(2, 3, TreasureFutureOffset);
-       // Get the same variable, but in the past subset
-        int linealIndexPast = coordToLineal(2, 3, TreasurePastOffset);
-
-        VecInt variablePositive = new VecInt();
-        variablePositive.insertFirst(linealIndex);
-
-        // Check if Gamma + variablePositive is unsatisfiable:
-        // This is only AN EXAMPLE for a specific position: (2,3)
-        if (!(solver.isSatisfiable(variablePositive))) {
-              // Add conclusion to list, but rewritten with respect to "past" variables
-              VecInt concPast = new VecInt();
-              concPast.insertFirst(-(linealIndexPast));
-
-              futureToPast.add(concPast);
-              tfstate.set( 2 , 3 , "X" );
-        }*/
-
     }
 
     /**
