@@ -379,7 +379,8 @@ public class TreasureFinder  {
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException
     {
-        int totalNumVariables;
+        int totalNumVariables = WorldDim*WorldDim*2;
+
 
         // You must set this variable to the total number of boolean variables
         // in your formula Gamma
