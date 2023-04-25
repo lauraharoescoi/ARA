@@ -303,19 +303,101 @@ public class TreasureFinder  {
     {
 
       if ( ans.getType().equals(Action.DETECTED) ) {
-        int x = Integer.parseInt(ans.getComp(0));
-        int y = Integer.parseInt(ans.getComp(1));
-        int sensorValue = Integer.parseInt(ans.getComp(2));
+          int x = Integer.parseInt(ans.getComp(0));
+          int y = Integer.parseInt(ans.getComp(1));
+          int sensorValue = Integer.parseInt(ans.getComp(2));
 
-         // Call your function/functions to add the evidence clauses
-         // to Gamma to then be able to infer new NOT possible positions
+          // Call your function/functions to add the evidence clauses
+          addEvidenceClauses(x, y, sensorValue);
+      }
+          // to Gamma to then be able to infer new NOT possible positions
 
 
-         // CALL your functions HERE
-       }  
+          // CALL your functions HERE
     }
 
+    public void addEvidenceClauses(int x, int y, int sensorValue) throws ContradictionException {
+        switch (sensorValue) {
+            case 1:
+                addEvidenceClausesForAdjacent(x, y);
+                break;
+            case 2:
+                addEvidenceClausesForCorner(x, y);
+                break;
+            case 3:
+                addEvidenceClausesForNotClose(x, y);
+                break;
+        }
+    }
 
+    public void addEvidenceClausesForAdjacent(int x, int y) throws ContradictionException {
+        int[] dx = {1, 0, -1, 0, 0};
+        int[] dy = {0, 1, 0, -1, 0};
+        Position[] possible = new Position[5];
+
+        for(int i = 0; i< 5; i++) {
+            possible[i] = new Position(x + dx[i], y + dy[i]);
+        }
+
+        for(int i = 0; i<WorldDim; i++) {
+            for(int j = 0; j<WorldDim; j++) {
+                boolean isPossible = false;
+                for(int k = 0; k<5; k++) {
+                    if (possible[k].x == i && possible[k].y == j) {
+                        isPossible = true;
+                        break;
+                    }
+                }
+                if (!isPossible) {
+                    solver.addClause(new VecInt(new int[]{getFutureVariableClause(i, j)}));
+                }
+            }
+        }
+    }
+
+    public void addEvidenceClausesForCorner(int x, int y) throws ContradictionException {
+        int[] dx = {1, 1, -1, -1};
+        int[] dy = {1, -1, 1, -1};
+        Position[] possible = new Position[4];
+
+        for(int i = 0; i< 4; i++) {
+            possible[i] = new Position(x + dx[i], y + dy[i]);
+        }
+
+        for(int i = 0; i<WorldDim; i++) {
+            for(int j = 0; j<WorldDim; j++) {
+                boolean isPossible = false;
+                for(int k = 0; k<4; k++) {
+                    if (possible[k].x == i && possible[k].y == j) {
+                        isPossible = true;
+                        break;
+                    }
+                }
+                if (!isPossible) {
+                    solver.addClause(new VecInt(new int[]{getFutureVariableClause(i, j)}));
+                }
+            }
+        }
+    }
+
+    public void addEvidenceClausesForNotClose(int x, int y) throws ContradictionException {
+        int[] dx = {-1 ,0, 1};
+        int[] dy = {-1, 0, 1};
+        Position[] possible = new Position[4];
+
+        for(int i = 0; i< 3; i++) {
+            for(int j = 0; j<3; j++) {
+                if(EnvAgent.withinLimits(x + dx[i], y + dy[j])){
+                    solver.addClause(new VecInt(new int[]{-getFutureVariableClause(x + dx[i], y + dy[j])}));
+                }
+            }
+        }
+    }
+
+    public int getFutureVariableClause(int x, int y) {
+        return -(coordToLineal(x, y, WorldDim*WorldDim));
+
+    }
 
     /**
     *  This function should add all the clauses stored in the list
