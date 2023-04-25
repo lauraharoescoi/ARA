@@ -82,7 +82,7 @@ public class TreasureFinder  {
 *    variables in your solution or use totally different variables to identify
      your different subsets of variables).
 **/
-    int TreasurePastOffset;
+    int TreasurePastOffset = 0;
     int TreasureFutureOffset;
     int DetectorOffset;
     int actualLiteral;
@@ -101,6 +101,7 @@ public class TreasureFinder  {
 
         WorldDim = WDim;
         WorldLinealDim = WorldDim * WorldDim;
+        TreasureFutureOffset = WorldLinealDim;
 
         try {
             solver = buildGamma();
@@ -116,6 +117,7 @@ public class TreasureFinder  {
 
         tfstate = new TFState(WorldDim);  // Initialize state (matrix) of knowledge with '?'
         tfstate.printState();
+
     }
 
     /**
@@ -395,7 +397,7 @@ public class TreasureFinder  {
     }
 
     public int getFutureVariableClause(int x, int y) {
-        return -(coordToLineal(x, y, WorldDim*WorldDim));
+        return -(coordToLineal(x, y, TreasureFutureOffset));
 
     }
 
@@ -430,8 +432,8 @@ public class TreasureFinder  {
     public void  performInferenceQuestions() throws  IOException,
             ContradictionException, TimeoutException
     {
-       for (int i = 0; i < TreasureFutureOffset; i++) {
-           for (int j = 0; j < TreasureFutureOffset; j++) {
+       for (int i = 0; i < WorldDim; i++) {
+           for (int j = 0; j < WorldDim; j++) {
                int linealIndex = coordToLineal(i, j, TreasureFutureOffset);
                int linealIndexPast = coordToLineal(i, j, TreasurePastOffset);
 
