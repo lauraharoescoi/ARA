@@ -268,7 +268,10 @@ public class TreasureFinder  {
           agentY = Integer.parseInt( moveans.getComp(1) );
           
           System.out.println("FINDER => moved to : (" + agentX + "," + agentY + ")"   );
+        } else if (moveans.getType().equals(Action.NOTMOVETO)){
+          System.out.println("FINDER => ERROR: could not move to : (" + agentX + "," + agentY + ")"   );
         }
+
     }
 
     /**
