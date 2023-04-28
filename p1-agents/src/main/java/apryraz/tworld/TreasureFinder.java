@@ -82,8 +82,11 @@ public class TreasureFinder  {
 *    variables in your solution or use totally different variables to identify
      your different subsets of variables).
 **/
-    int TreasurePastOffset = 0;
+    int TreasurePastOffset = 1;
     int TreasureFutureOffset;
+    int signal1Offset;
+    int signal2Offset;
+    int signal3Offset;
     int DetectorOffset;
     int actualLiteral;
 
@@ -101,7 +104,10 @@ public class TreasureFinder  {
 
         WorldDim = WDim;
         WorldLinealDim = WorldDim * WorldDim;
-        TreasureFutureOffset = WorldLinealDim;
+        TreasureFutureOffset = TreasurePastOffset + WorldLinealDim;
+        signal1Offset = TreasureFutureOffset + WorldLinealDim;
+        signal2Offset = signal1Offset + WorldLinealDim;
+        signal3Offset = signal2Offset + WorldLinealDim;
 
         try {
             solver = buildGamma();
@@ -319,17 +325,20 @@ public class TreasureFinder  {
     }
 
     public void addEvidenceClauses(int x, int y, int sensorValue) throws ContradictionException {
-        switch (sensorValue) {
+        switch (sensorValue){
             case 1:
-                addEvidenceClausesForAdjacent(x, y);
+                solver.addClause(new VecInt(new int[]{coordToLineal(x, y, signal1Offset)}));
                 break;
             case 2:
-                addEvidenceClausesForCorner(x, y);
+                solver.addClause(new VecInt(new int[]{coordToLineal(x, y, signal2Offset)}));
                 break;
             case 3:
-                addEvidenceClausesForNotClose(x, y);
+                solver.addClause(new VecInt(new int[]{coordToLineal(x, y, signal3Offset)}));
                 break;
         }
+    }
+    public void addFutureToPastClause(int x, int y) throws ContradictionException {
+        solver.addClause(new VecInt(new int[]{coordToLineal(x, y, TreasurePastOffset), -coordToLineal(x, y, TreasureFutureOffset)}));
     }
 
     public void addEvidenceClausesForAdjacent(int x, int y) throws ContradictionException {
@@ -351,7 +360,7 @@ public class TreasureFinder  {
                     }
                 }
                 if (!isPossible) {
-                    solver.addClause(new VecInt(new int[]{getFutureVariableClause(i, j)}));
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(i, j, signal1Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
                 }
             }
         }
@@ -376,7 +385,7 @@ public class TreasureFinder  {
                     }
                 }
                 if (!isPossible) {
-                    solver.addClause(new VecInt(new int[]{getFutureVariableClause(i, j)}));
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(i, j, signal2Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
                 }
             }
         }
@@ -390,15 +399,11 @@ public class TreasureFinder  {
         for(int i = 0; i< 3; i++) {
             for(int j = 0; j<3; j++) {
                 if(EnvAgent.withinLimits(x + dx[i], y + dy[j])){
-                    solver.addClause(new VecInt(new int[]{-getFutureVariableClause(x + dx[i], y + dy[j])}));
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(x + dx[i], y + dy[j], signal3Offset),
+                            -coordToLineal(x + dx[i], y + dy[j], TreasureFutureOffset)}));
                 }
             }
         }
-    }
-
-    public int getFutureVariableClause(int x, int y) {
-        return -(coordToLineal(x, y, TreasureFutureOffset));
-
     }
 
     /**
@@ -454,6 +459,23 @@ public class TreasureFinder  {
        }
     }
 
+    public void createClauses() throws ContradictionException {
+        VecInt atLeastOneFuture = new VecInt();
+        VecInt atLeastOnePast = new VecInt();
+        for(int i = 0; i < WorldDim; i++){
+            for(int j = 0; j<  WorldDim; j++){
+                addFutureToPastClause(i, j);
+                addEvidenceClausesForAdjacent(i, j);
+                addEvidenceClausesForCorner(i, j);
+                addEvidenceClausesForNotClose(i, j);
+                atLeastOneFuture.push(coordToLineal(i, j, TreasureFutureOffset));
+                atLeastOnePast.push(coordToLineal(i, j, TreasurePastOffset));
+            }
+        }
+        solver.addClause(atLeastOneFuture);
+        solver.addClause(atLeastOnePast);
+    }
+
     /**
     * This function builds the initial logical formula of the agent and stores it
     * into the solver object.
@@ -463,7 +485,7 @@ public class TreasureFinder  {
     public ISolver buildGamma() throws UnsupportedEncodingException,
             FileNotFoundException, IOException, ContradictionException
     {
-        int totalNumVariables = WorldDim*WorldDim*2;
+        int totalNumVariables = WorldLinealDim * 5; // 5 variables per position, past, future, signal1, signal2, signal3
 
 
         // You must set this variable to the total number of boolean variables
@@ -472,6 +494,8 @@ public class TreasureFinder  {
         solver = SolverFactory.newDefault();
         solver.setTimeout(3600);
         solver.newVar(totalNumVariables);
+
+        createClauses();
         // This variable is used to generate, in a particular sequential order,
         // the variable indentifiers of all the variables
         actualLiteral = 1;
