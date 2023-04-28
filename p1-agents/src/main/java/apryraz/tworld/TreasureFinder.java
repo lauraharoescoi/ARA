@@ -87,7 +87,6 @@ public class TreasureFinder  {
     int signal1Offset;
     int signal2Offset;
     int signal3Offset;
-    int DetectorOffset;
     int actualLiteral;
 
 
@@ -154,8 +153,9 @@ public class TreasureFinder  {
     {
         String[] stepsList;
         String steps = ""; // Prepare a list of movements to try with the FINDER Agent
+        System.out.println(stepsFile);
         try {
-            BufferedReader br = new BufferedReader(new FileReader(stepsFile));
+            BufferedReader br = new BufferedReader(new FileReader("D:\\Usuario\\Documentos\\ARA\\ARA\\p1-agents\\tests\\steps1.txt"));
             System.out.println("STEPS FILE OPENED ...");
             steps = br.readLine();
             br.close();
@@ -397,7 +397,7 @@ public class TreasureFinder  {
 
         for(int i = 0; i< 3; i++) {
             for(int j = 0; j<3; j++) {
-                if(EnvAgent.withinLimits(x + dx[i], y + dy[j])){
+                if(withinLimits(x + dx[i], y + dy[j])){
                     solver.addClause(new VecInt(new int[]{-coordToLineal(x + dx[i], y + dy[j], signal3Offset),
                             -coordToLineal(x + dx[i], y + dy[j], TreasureFutureOffset)}));
                 }
@@ -414,6 +414,7 @@ public class TreasureFinder  {
     public void addLastFutureClausesToPastClauses() throws  IOException,
             ContradictionException, TimeoutException
     {
+        if(futureToPast == null) futureToPast = new ArrayList<VecInt>();;
         for (VecInt clause : futureToPast) {
             solver.addClause(clause);
             pastClauses.add(clause);
@@ -461,8 +462,8 @@ public class TreasureFinder  {
     public void createClauses() throws ContradictionException {
         VecInt atLeastOneFuture = new VecInt();
         VecInt atLeastOnePast = new VecInt();
-        for(int i = 0; i < WorldDim; i++){
-            for(int j = 0; j<  WorldDim; j++){
+        for(int i = 1; i <= WorldDim; i++){
+            for(int j = 1; j <=  WorldDim; j++){
                 addFutureToPastClause(i, j);
                 addEvidenceClausesForAdjacent(i, j);
                 addEvidenceClausesForCorner(i, j);
@@ -542,6 +543,10 @@ public class TreasureFinder  {
         return coords;
     }
 
+    public boolean withinLimits( int x, int y ) {
+
+        return ( x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
+    }
 
 
 }
