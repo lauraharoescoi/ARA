@@ -32,18 +32,21 @@ public static void runStepsSequence( int wDim, int tX, int tY,
                                     int numSteps, String fileSteps ) throws
                                IOException,  ContradictionException, TimeoutException {
   // Make instances of TreasureFinder agent and environment object classes
-   TreasureFinder TAgent  ;
-   TreasureWorldEnv EnvAgent  ;
-
+    TreasureFinder TAgent  ;
+    TreasureWorldEnv EnvAgent  ;
+    TAgent = new TreasureFinder(wDim);
+    EnvAgent = new TreasureWorldEnv(wDim, tX, tY);
 
    // Set environment object, and load list of pirate positions
- 
+    TAgent.setEnvironment(EnvAgent);
 
    // load list of steps into the Finder Agent
-    
+    TAgent.loadListOfSteps(numSteps, fileSteps);
     
    // Execute sequence of steps with the Agent
-
+    for(int i = 0; i < numSteps; i++) {
+        TAgent.runNextStep();
+    }
 }
 
 /**
@@ -57,9 +60,20 @@ public static void runStepsSequence( int wDim, int tX, int tY,
 public static void main ( String[] args) throws ParseFormatException,
         IOException,  ContradictionException, TimeoutException {
 
-  // Here I run a concrete example, but you should read parameters from
-  // the command line, as decribed above.
-  runStepsSequence(  6, 3, 3, 5, "tests/steps1.txt"  );
+    // Here I run a concrete example, but you should read parameters from
+    // the command line, as decribed above.
+    if ( args.length != 5 ) {
+        System.out.println("Usage: java EnvelopeWorld <dimension> <numSteps> <fileSteps> <fileEnvelopes>");
+        throw new ParseFormatException("Wrong number of arguments, check Usage");
+    }
+
+    int wDim = Integer.parseInt(args[0]);
+    int tX = Integer.parseInt(args[1]);
+    int tY = Integer.parseInt(args[2]);
+    int numSteps = Integer.parseInt(args[3]);
+    String fileSteps = args[4];
+
+    runStepsSequence(  wDim, tX, tY, numSteps, fileSteps );
 }
 
 }

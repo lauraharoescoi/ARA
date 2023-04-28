@@ -136,8 +136,7 @@ public class TreasureFinder  {
 
     **/
     public void setEnvironment( TreasureWorldEnv environment ) {
-
-         EnvAgent =  environment;
+        EnvAgent =  environment;
     }
 
 
