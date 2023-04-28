@@ -313,9 +313,10 @@ public class TreasureFinder  {
           int x = Integer.parseInt(ans.getComp(0));
           int y = Integer.parseInt(ans.getComp(1));
           int sensorValue = Integer.parseInt(ans.getComp(2));
+          System.out.println("FINDER => detected signal " + sensorValue + " at : (" + agentX + "," + agentY + ")");
 
           // Call your function/functions to add the evidence clauses
-          addEvidenceClauses(x, y, sensorValue);
+          addEvidenceClause(x, y, sensorValue);
       }
           // to Gamma to then be able to infer new NOT possible positions
 
@@ -323,7 +324,7 @@ public class TreasureFinder  {
           // CALL your functions HERE
     }
 
-    public void addEvidenceClauses(int x, int y, int sensorValue) throws ContradictionException {
+    public void addEvidenceClause(int x, int y, int sensorValue) throws ContradictionException {
         switch (sensorValue){
             case 1:
                 solver.addClause(new VecInt(new int[]{coordToLineal(x, y, signal1Offset)}));
@@ -349,8 +350,8 @@ public class TreasureFinder  {
             possible[i] = new Position(x + dx[i], y + dy[i]);
         }
 
-        for(int i = 0; i<WorldDim; i++) {
-            for(int j = 0; j<WorldDim; j++) {
+        for(int i = 1; i<=WorldDim; i++) {
+            for(int j = 1; j<=WorldDim; j++) {
                 boolean isPossible = false;
                 for(int k = 0; k<5; k++) {
                     if (possible[k].x == i && possible[k].y == j) {
@@ -359,7 +360,7 @@ public class TreasureFinder  {
                     }
                 }
                 if (!isPossible) {
-                    solver.addClause(new VecInt(new int[]{-coordToLineal(i, j, signal1Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, signal1Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
                 }
             }
         }
@@ -374,8 +375,8 @@ public class TreasureFinder  {
             possible[i] = new Position(x + dx[i], y + dy[i]);
         }
 
-        for(int i = 0; i<WorldDim; i++) {
-            for(int j = 0; j<WorldDim; j++) {
+        for(int i = 1; i<=WorldDim; i++) {
+            for(int j = 1; j<=WorldDim; j++) {
                 boolean isPossible = false;
                 for(int k = 0; k<4; k++) {
                     if (possible[k].x == i && possible[k].y == j) {
@@ -384,7 +385,7 @@ public class TreasureFinder  {
                     }
                 }
                 if (!isPossible) {
-                    solver.addClause(new VecInt(new int[]{-coordToLineal(i, j, signal2Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, signal2Offset), -coordToLineal(i, j, TreasureFutureOffset)}));
                 }
             }
         }
@@ -398,7 +399,7 @@ public class TreasureFinder  {
         for(int i = 0; i< 3; i++) {
             for(int j = 0; j<3; j++) {
                 if(withinLimits(x + dx[i], y + dy[j])){
-                    solver.addClause(new VecInt(new int[]{-coordToLineal(x + dx[i], y + dy[j], signal3Offset),
+                    solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, signal3Offset),
                             -coordToLineal(x + dx[i], y + dy[j], TreasureFutureOffset)}));
                 }
             }
@@ -437,17 +438,15 @@ public class TreasureFinder  {
     public void  performInferenceQuestions() throws  IOException,
             ContradictionException, TimeoutException
     {
-       for (int i = 0; i < WorldDim; i++) {
-           for (int j = 0; j < WorldDim; j++) {
+       for (int i = 1; i <= WorldDim; i++) {
+           for (int j = 1; j <= WorldDim; j++) {
                int linealIndex = coordToLineal(i, j, TreasureFutureOffset);
                int linealIndexPast = coordToLineal(i, j, TreasurePastOffset);
 
-               VecInt variablePositive = new VecInt();
-               variablePositive.insertFirst(linealIndex);
+               VecInt variablePositive = new VecInt(new int[]{linealIndex});
 
                if (!(solver.isSatisfiable(variablePositive))) {
-                   VecInt concPast = new VecInt();
-                   concPast.insertFirst(-(linealIndexPast));
+                   VecInt concPast = new VecInt(new int[]{linealIndexPast});
 
                    // No afegeix les conclusions que ja s'han afegit anteriorment a futureToPast
                    if(!pastClauses.contains(concPast)) {
