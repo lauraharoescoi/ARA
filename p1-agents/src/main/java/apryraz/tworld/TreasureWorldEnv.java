@@ -63,6 +63,13 @@ public class TreasureWorldEnv {
 
    }
 
+    /**
+     * Determines the signal strength at the given coordinates relative to the location of the treasure.
+     *
+     * @param x the x coordinate of the location to detect the signal from
+     * @param y the y coordinate of the location to detect the signal from
+     * @return the signal strength at the given coordinates: 1 if the location is adjacent to the treasure, 2 if it is diagonally adjacent, 3 otherwise.
+     */
    public int detectSignal(int x, int y) {
        if (x == TreasureX && y == TreasureY || x + 1 == TreasureX && y == TreasureY || x == TreasureX && y + 1 == TreasureY || x - 1 == TreasureX && y == TreasureY || x == TreasureX && y - 1 == TreasureY) {
            return 1;
@@ -84,7 +91,6 @@ public class TreasureWorldEnv {
   * @return true if (x,y) is within the limits of the world
   **/
    public boolean withinLimits( int x, int y ) {
-
     return ( x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
   }
  

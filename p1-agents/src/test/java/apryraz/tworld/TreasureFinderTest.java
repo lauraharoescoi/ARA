@@ -1,3 +1,5 @@
+package apryraz.tworld;
+
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.logging.Level;
@@ -38,6 +40,8 @@ public class TreasureFinderTest {
                                            IOException,  ContradictionException, TimeoutException {
     // Check (assert) whether the resulting state is equal to
     //  the targetState after performing action runNextStep with bAgent
+      tAgent.runNextStep();
+      Assert.assertEquals(targetState, tAgent.getState());
 
   }
 
@@ -122,21 +126,25 @@ public class TreasureFinderTest {
       // You should make TreasureFinder and TreasureWorldEnv objects to  test.
       // Then load sequence of target states, load sequence of steps into the bAgent
       // and then test the sequence calling testMakeSimpleStep once for each step.
-     TreasureFinder TAgent = new TreasureFinder( wDim);
-     // load information about the World into the EnvAgent
-     TreasureWorldEnv EnvAgent = new TreasureWorldEnv( wDim, tX, tY ) ;
-     // Load list of states
-     ArrayList<TFState> seqOfStates ;
+      TreasureFinder tAgent = new TreasureFinder( wDim);
+      // load information about the World into the EnvAgent
+      TreasureWorldEnv envAgent = new TreasureWorldEnv( wDim, tX, tY ) ;
+      // Load list of states
+      ArrayList<TFState> seqOfStates = loadListOfTargetStates(wDim, numSteps + 1, fileStates); // add 1 to account for initial state
 
+      // set the environment agent
+      tAgent.setEnvironment(envAgent);
 
-     // Set environment agent and load list of steps into the agent
-     TAgent.loadListOfSteps(  numSteps, fileSteps ) ;
-     TAgent.setEnvironment( EnvAgent );
+      // load the list of steps into the agent
+      tAgent.loadListOfSteps(numSteps, fileSteps);
 
-     // Test here the sequence of steps and check the resulting states with the
-     // ones in seqOfStates
-
-
+      // execute the steps and test each resulting state against the corresponding target state
+      for (int i = 0; i < numSteps; i++) {
+          tAgent.runNextStep();
+          TFState resultState = tAgent.getState();
+          TFState targetState = seqOfStates.get(i + 1);
+          assertEquals(targetState, resultState);
+      }
   }
 
   /**

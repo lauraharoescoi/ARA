@@ -155,7 +155,7 @@ public class TreasureFinder  {
         String steps = ""; // Prepare a list of movements to try with the FINDER Agent
         System.out.println(stepsFile);
         try {
-            BufferedReader br = new BufferedReader(new FileReader("D:\\Usuario\\Documentos\\ARA\\ARA\\p1-agents\\tests\\steps1.txt"));
+            BufferedReader br = new BufferedReader(new FileReader(stepsFile));
             System.out.println("STEPS FILE OPENED ...");
             steps = br.readLine();
             br.close();
@@ -197,20 +197,9 @@ public class TreasureFinder  {
     public void runNextStep() throws
             IOException,  ContradictionException, TimeoutException
     {
-          
-          // Add the conclusions obtained in the previous step
-          // but as clauses that use the "past" variables
           addLastFutureClausesToPastClauses();
-
-          // Ask to move, and check whether it was successful          
           processMoveAnswer( moveToNext( ) );
-
-
-          // Next, use Detector sensor to discover new information
-          processDetectorSensorAnswer( DetectsAt() );       
-
-          // Perform logical consequence questions for all the positions
-          // of the Treasure World
+          processDetectorSensorAnswer( DetectsAt() );
           performInferenceQuestions();
           tfstate.printState();      // Print the resulting knowledge matrix
     }
@@ -252,7 +241,6 @@ public class TreasureFinder  {
     **/
     public AMessage moveTo( int x, int y )
     {
-        // Tell the EnvironmentAgentID that we want  to move
         AMessage msg, ans;
 
         msg = new AMessage(Action.MOVETO, Integer.toString(x), Integer.toString(y), "" );
@@ -324,6 +312,13 @@ public class TreasureFinder  {
           // CALL your functions HERE
     }
 
+    /**
+     * Adds a clause to the SAT solver instance to represent evidence provided by a sensor at a given location on the map.
+     *
+     * @param x the x-coordinate of the location on the map
+     * @param y the y-coordinate of the location on the map
+     * @param sensorValue the value of the sensor providing the evidence
+     */
     public void addEvidenceClause(int x, int y, int sensorValue) throws ContradictionException {
         switch (sensorValue){
             case 1:
@@ -337,23 +332,38 @@ public class TreasureFinder  {
                 break;
         }
     }
+
+    /**
+     * Adds the stored evidence clauses from the past to the SAT solver instance.
+     *
+     * @param x the x-coordinate of the location on the map
+     * @param y the y-coordinate of the location on the map
+     */
     public void addFutureToPastClause(int x, int y) throws ContradictionException {
         solver.addClause(new VecInt(new int[]{coordToLineal(x, y, TreasurePastOffset), -coordToLineal(x, y, TreasureFutureOffset)}));
     }
 
+    /**
+     * This method adds clauses to the solver representing that Treasure can't be in a position
+     * adjacent to (x,y). This means that Treasure can't be in any of the 5 possible positions
+     * that are adjacent to (x,y).
+     *
+     * @param x x-coordinate of the position to avoid
+     * @param y y-coordinate of the position to avoid
+     */
     public void addEvidenceClausesForAdjacent(int x, int y) throws ContradictionException {
         int[] dx = {1, 0, -1, 0, 0};
         int[] dy = {0, 1, 0, -1, 0};
         Position[] possible = new Position[5];
 
-        for(int i = 0; i< 5; i++) {
+        for(int i = 0; i < 5; i++) {
             possible[i] = new Position(x + dx[i], y + dy[i]);
         }
 
-        for(int i = 1; i<=WorldDim; i++) {
-            for(int j = 1; j<=WorldDim; j++) {
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
                 boolean isPossible = false;
-                for(int k = 0; k<5; k++) {
+                for(int k = 0; k < 5; k++) {
                     if (possible[k].x == i && possible[k].y == j) {
                         isPossible = true;
                         break;
@@ -366,19 +376,27 @@ public class TreasureFinder  {
         }
     }
 
+    /**
+     * This method adds clauses to the solver representing that Treasure can't be in a position
+     * in any of the 4 corners adjacent to (x,y). This means that Treasure can't be in any of the 4 possible positions
+     * that are in the corners adjacent to (x,y).
+     *
+     * @param x x-coordinate of the position to avoid
+     * @param y y-coordinate of the position to avoid
+     */
     public void addEvidenceClausesForCorner(int x, int y) throws ContradictionException {
         int[] dx = {1, 1, -1, -1};
         int[] dy = {1, -1, 1, -1};
         Position[] possible = new Position[4];
 
-        for(int i = 0; i< 4; i++) {
+        for(int i = 0; i < 4; i++) {
             possible[i] = new Position(x + dx[i], y + dy[i]);
         }
 
-        for(int i = 1; i<=WorldDim; i++) {
-            for(int j = 1; j<=WorldDim; j++) {
+        for(int i = 1; i <= WorldDim; i++) {
+            for(int j = 1; j <= WorldDim; j++) {
                 boolean isPossible = false;
-                for(int k = 0; k<4; k++) {
+                for(int k = 0; k < 4; k++) {
                     if (possible[k].x == i && possible[k].y == j) {
                         isPossible = true;
                         break;
@@ -391,13 +409,20 @@ public class TreasureFinder  {
         }
     }
 
+    /**
+     * Adds evidence clauses to the solver to ensure that the cell (x,y) is not close to a treasure in the future.
+     * This method iterates over the surrounding cells of (x,y), and if they are within limits, it adds a clause to the solver
+     * indicating that the current cell (x,y) is not close to a treasure in the future.
+     *
+     * @param x the x-coordinate of the cell.
+     * @param y the y-coordinate of the cell.
+     */
     public void addEvidenceClausesForNotClose(int x, int y) throws ContradictionException {
         int[] dx = {-1 ,0, 1};
         int[] dy = {-1, 0, 1};
-        Position[] possible = new Position[4];
 
-        for(int i = 0; i< 3; i++) {
-            for(int j = 0; j<3; j++) {
+        for(int i = 0; i < 3; i++) {
+            for(int j = 0; j < 3; j++) {
                 if(withinLimits(x + dx[i], y + dy[j])){
                     solver.addClause(new VecInt(new int[]{-coordToLineal(x, y, signal3Offset),
                             -coordToLineal(x + dx[i], y + dy[j], TreasureFutureOffset)}));
@@ -409,7 +434,7 @@ public class TreasureFinder  {
     /**
     *  This function should add all the clauses stored in the list
     *  futureToPast to the formula stored in solver.
-    *   Use the function addClause( VecInt ) to add each clause to the solver
+    *  Use the function addClause( VecInt ) to add each clause to the solver
     *
     **/
     public void addLastFutureClausesToPastClauses() throws  IOException,
@@ -458,6 +483,15 @@ public class TreasureFinder  {
        }
     }
 
+    /**
+
+     * This method is responsible for creating the clauses that will be used by the solver to determine
+     * the location of the treasure. It iterates over each position in the World and calls several methods
+     * to add clauses related to that position, including clauses for adjacent positions, corners,
+     * and evidence clauses for not being too close to a detector. It also creates clauses to ensure that
+     * there is at least one treasure location in both the past and future grids. Finally, it adds these
+     * clauses to the solver.
+     */
     public void createClauses() throws ContradictionException {
         VecInt atLeastOneFuture = new VecInt();
         VecInt atLeastOnePast = new VecInt();
@@ -485,7 +519,6 @@ public class TreasureFinder  {
             FileNotFoundException, IOException, ContradictionException
     {
         int totalNumVariables = WorldLinealDim * 5; // 5 variables per position, past, future, signal1, signal2, signal3
-
 
         // You must set this variable to the total number of boolean variables
         // in your formula Gamma
@@ -542,10 +575,17 @@ public class TreasureFinder  {
         return coords;
     }
 
+    /**
+     * Check if position x,y is within the limits of the
+     * WorldDim x WorldDim   world
+     *
+     * @param x  x coordinate of agent position
+     * @param y  y coordinate of agent position
+     *
+     * @return true if (x,y) is within the limits of the world
+     **/
     public boolean withinLimits( int x, int y ) {
-
         return ( x >= 1 && x <= WorldDim && y >= 1 && y <= WorldDim);
     }
-
 
 }
