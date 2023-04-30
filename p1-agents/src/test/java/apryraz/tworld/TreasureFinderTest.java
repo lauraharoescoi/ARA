@@ -39,15 +39,14 @@ public class TreasureFinderTest {
                                    TFState targetState )  throws
                                            IOException,  ContradictionException, TimeoutException {
     // Check (assert) whether the resulting state is equal to
-    //  the targetState after performing action runNextStep with bAgent
+    // the targetState after performing action runNextStep with bAgent
       tAgent.runNextStep();
       Assert.assertEquals(targetState, tAgent.getState());
-
   }
 
 
 /**
-*  Read an state from the current position of the file trough the
+*  Read on state from the current position of the file through the
 *  BufferedReader object
 *
 *  @param br BufferedReader object interface to the opened file of states
@@ -63,8 +62,9 @@ public class TreasureFinderTest {
            row = br.readLine();
            rowvalues = row.split(" ");
            for (int j = 1; j <= wDim; j++) {
-              tfstate.set(i,j,rowvalues[j-1]);
+               tfstate.set(i, j, rowvalues[j - 1]);
            }
+
         }
         return tfstate;
   }
@@ -90,6 +90,7 @@ public class TreasureFinderTest {
          // steps = br.readLine();
          for (int s = 0; s < numStates ; s++ ) {
            listOfStates.add(readTargetStateFromFile(br,wDim));
+
             // Read a blank line between states
             row = br.readLine();
          }
@@ -130,7 +131,7 @@ public class TreasureFinderTest {
       // load information about the World into the EnvAgent
       TreasureWorldEnv envAgent = new TreasureWorldEnv( wDim, tX, tY ) ;
       // Load list of states
-      ArrayList<TFState> seqOfStates = loadListOfTargetStates(wDim, numSteps + 1, fileStates); // add 1 to account for initial state
+      ArrayList<TFState> seqOfStates = loadListOfTargetStates(wDim, numSteps, fileStates); // add 1 to account for initial state
 
       // set the environment agent
       tAgent.setEnvironment(envAgent);
@@ -142,7 +143,7 @@ public class TreasureFinderTest {
       for (int i = 0; i < numSteps; i++) {
           tAgent.runNextStep();
           TFState resultState = tAgent.getState();
-          TFState targetState = seqOfStates.get(i + 1);
+          TFState targetState = seqOfStates.get(i);
           assertEquals(targetState, resultState);
       }
   }
@@ -153,8 +154,69 @@ public class TreasureFinderTest {
   **/
   @Test public void TWorldTest1()   throws
           IOException,  ContradictionException, TimeoutException {
-   // Example test for 6x6 world , Treasure at 3,3 and 5 steps
-    testMakeSeqOfSteps(  6, 3, 3, 5, "tests/steps1.txt", "tests/states1.txt" );
+      // Example test for 6x6 world , Treasure at 3,3 and 5 steps
+
+      var fileSteps = "tests/steps1.txt";
+      if (!new java.io.File(fileSteps).exists()) {
+          System.out.println("MSG.   => Steps file not found");
+          exit(1);
+      }
+      var fileStates = "tests/states1.txt";
+      if (!new java.io.File(fileStates).exists()) {
+          System.out.println("MSG.   => States file not found");
+          exit(1);
+      }
+      testMakeSeqOfSteps(6, 3, 3, 5, fileSteps, fileStates);
   }
 
+  @Test public void TWorldTest2()   throws
+          IOException,  ContradictionException, TimeoutException {
+      // Example test for 7x7 world , Treasure at 4,4 and 6 steps
+
+      var fileSteps = "tests/steps2.txt";
+      if (!new java.io.File(fileSteps).exists()) {
+          System.out.println("MSG.   => Steps file not found");
+          exit(1);
+      }
+      var fileStates = "tests/states2.txt";
+      if (!new java.io.File(fileStates).exists()) {
+          System.out.println("MSG.   => States file not found");
+          exit(1);
+      }
+      testMakeSeqOfSteps(7, 4, 4, 6, fileSteps, fileStates);
+  }
+
+  @Test public void TWorldTest3()  throws
+          IOException,  ContradictionException, TimeoutException {
+      // Example test for 8x8 world , Treasure at 5,4 and 7 steps
+
+      var fileSteps = "tests/steps3.txt";
+      if (!new java.io.File(fileSteps).exists()) {
+          System.out.println("MSG.   => Steps file not found");
+          exit(1);
+      }
+      var fileStates = "tests/states3.txt";
+      if (!new java.io.File(fileStates).exists()) {
+          System.out.println("MSG.   => States file not found");
+          exit(1);
+      }
+      testMakeSeqOfSteps(8, 5, 4, 7, fileSteps, fileStates);
+  }
+
+    @Test public void TWorldTest4()  throws
+            IOException,  ContradictionException, TimeoutException {
+        // Example test for 10x10 world , Treasure at 6,5 and 7 steps
+
+        var fileSteps = "tests/steps4.txt";
+        if (!new java.io.File(fileSteps).exists()) {
+            System.out.println("MSG.   => Steps file not found");
+            exit(1);
+        }
+        var fileStates = "tests/states4.txt";
+        if (!new java.io.File(fileStates).exists()) {
+            System.out.println("MSG.   => States file not found");
+            exit(1);
+        }
+        testMakeSeqOfSteps(10, 6, 5, 7, fileSteps, fileStates);
+    }
 }
